@@ -428,6 +428,7 @@ main {
   margin-top: 12px;
   border-bottom: 1px solid #444a38;
   padding-bottom: 4px;
+  position: relative;
 }
 .beat-timeline span {
   background: #6a814e;
@@ -436,6 +437,76 @@ main {
 }
 .beat-timeline .outside {
   opacity: 0.15;
+}
+.range-selection {
+  position: absolute;
+  top: 0;
+  bottom: 5px;
+  border: 1px solid #bcf366;
+  border-radius: 3px;
+  background: rgba(188, 243, 102, 0.08);
+  pointer-events: none;
+}
+.range-selection.dragging {
+  background: rgba(188, 243, 102, 0.16);
+}
+.range-handle {
+  position: absolute;
+  top: 50%;
+  width: 9px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid #bcf366;
+  border-radius: 5px;
+  background: #242c19;
+  cursor: ew-resize;
+  pointer-events: auto;
+  touch-action: none;
+}
+.range-handle.start {
+  left: 0;
+  transform: translate(-50%, -50%);
+}
+.range-handle.end {
+  right: 0;
+  transform: translate(50%, -50%);
+}
+.range-handle:after {
+  content: "";
+  display: block;
+  width: 3px;
+  height: 12px;
+  margin: 6px auto;
+  border-left: 1px solid #bcf366;
+  border-right: 1px solid #bcf366;
+}
+.pending-tag {
+  font-style: normal;
+  color: #bcf366;
+  border: 1px solid #66764b;
+  border-radius: 3px;
+  padding: 1px 4px;
+  margin-left: 6px;
+  font-size: 9px;
+}
+.draft-actions {
+  display: flex;
+  gap: 7px;
+  margin: 0 0 13px;
+}
+.draft-actions button {
+  flex: 1;
+  border: 1px solid #34363f;
+  background: #22232b;
+  border-radius: 5px;
+  height: 28px;
+  font-size: 11px;
+  color: #9ca0a9;
+}
+.draft-actions .confirm {
+  color: #bcf366;
+  border-color: #66764b;
+  background: #2c3324;
 }
 .range-heading {
   display: flex;

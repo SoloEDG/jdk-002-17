@@ -41,8 +41,13 @@ const { library: l, practice: p, judgment: j, records: r, performance: s } = w;
         /><PracticePanel
           :track="l.selected.value"
           :config="p.config.value"
+          :draft="p.draft.value"
           :locked="w.locked.value"
           @update="w.updatePractice"
+          @begin="w.beginDrag"
+          @drag="w.dragRange"
+          @commit="w.commitRange"
+          @cancel="w.cancelRange"
         />
       </div>
       <section class="performance panel">
@@ -61,8 +66,8 @@ const { library: l, practice: p, judgment: j, records: r, performance: s } = w;
         </div>
         <StageView
           :track="l.selected.value"
-          :run="s.run.value"
-          :time="s.time.value"
+          :run="w.stageRun.value"
+          :time="w.stageTime.value"
           :phase="s.phase.value"
           :done="j.done.value"
           :held="j.held.value"

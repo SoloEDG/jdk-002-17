@@ -5,7 +5,8 @@ import { useJudgment, bindInput } from "../features/judgment";
 import { usePractice } from "../features/practice";
 import { useRecords, makeResult } from "../features/records";
 import { makeRun } from "../shared/session";
-import type { PracticeConfig } from "../shared/session";
+import { secondsAt } from "../shared/chart";
+import type { PracticeConfig, Run } from "../shared/session";
 import type { Lane } from "../shared/chart";
 
 export function useWorkspace() {
@@ -33,6 +34,7 @@ export function useWorkspace() {
       performance.phase.value === "paused",
   );
   async function start() {
+    practice.cancelDraft();
     const run = makeRun(library.selected.value, practice.config.value);
     judgment.reset(run);
     error.value = "";
@@ -69,6 +71,33 @@ export function useWorkspace() {
   function updatePractice(patch: Partial<PracticeConfig>) {
     if (!locked.value) practice.update(patch, library.selected.value.beats);
   }
+  function beginDrag() {
+    if (!locked.value && practice.config.value.enabled) practice.beginDraft();
+  }
+  function dragRange(edge: "start" | "end", beat: number) {
+    if (!locked.value) practice.dragDraft(edge, beat, library.selected.value.beats);
+  }
+  function commitRange() {
+    if (!locked.value) practice.commitDraft(library.selected.value.beats);
+  }
+  function cancelRange() {
+    practice.cancelDraft();
+  }
+  const stageRun = computed<Run | null>(() => {
+    if (performance.run.value) return performance.run.value;
+    const c = practice.config.value;
+    if (!c.enabled) return null;
+    const d = practice.draft.value;
+    return makeRun(
+      library.selected.value,
+      d ? { ...c, start: d.start, end: d.end } : c,
+    );
+  });
+  const stageTime = computed(() => {
+    if (performance.run.value) return performance.time.value;
+    const r = stageRun.value;
+    return r ? secondsAt(r.start, r.track.bpm) : 0;
+  });
   let cleanup = () => {};
   const blur = () => {
     if (performance.phase.value === "playing") pause();
@@ -90,11 +119,17 @@ export function useWorkspace() {
     performance,
     locked,
     error,
+    stageRun,
+    stageTime,
     start,
     select,
     down,
     up,
     pause,
     updatePractice,
+    beginDrag,
+    dragRange,
+    commitRange,
+    cancelRange,
   };
 }

@@ -1,10 +1,27 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import type { Track } from "../../../shared/chart";
 import type { PracticeConfig } from "../../../shared/session";
 import { rangeLabel } from "../lib/range";
+import type { Range } from "../lib/range";
 import BeatTimeline from "./BeatTimeline.vue";
-defineProps<{ track: Track; config: PracticeConfig; locked: boolean }>();
-defineEmits<{ update: [patch: Partial<PracticeConfig>] }>();
+const props = defineProps<{
+  track: Track;
+  config: PracticeConfig;
+  draft: Range | null;
+  locked: boolean;
+}>();
+defineEmits<{
+  update: [patch: Partial<PracticeConfig>];
+  begin: [];
+  drag: [edge: "start" | "end", beat: number];
+  commit: [];
+  cancel: [];
+}>();
+const shown = computed(
+  () =>
+    props.draft ?? { start: props.config.start, end: props.config.end },
+);
 </script>
 <template>
   <section class="practice panel">
@@ -41,9 +58,24 @@ defineEmits<{ update: [patch: Partial<PracticeConfig>] }>();
         {{ v }}×
       </button>
     </div>
-    <BeatTimeline :track="track" :start="config.start" :end="config.end" />
+    <BeatTimeline
+      :track="track"
+      :start="shown.start"
+      :end="shown.end"
+      :disabled="locked || !config.enabled"
+      @begin="$emit('begin')"
+      @drag="(edge, beat) => $emit('drag', edge, beat)"
+    />
     <div class="range-heading">
-      <span>练习片段</span><b>{{ rangeLabel(config.start, config.end) }}</b>
+      <span>练习片段</span
+      ><b
+        >{{ rangeLabel(shown.start, shown.end)
+        }}<i v-if="draft" class="pending-tag">待确认</i></b
+      >
+    </div>
+    <div v-if="draft" class="draft-actions">
+      <button class="confirm" @click="$emit('commit')">确认选区</button>
+      <button @click="$emit('cancel')">取消</button>
     </div>
     <div class="range-inputs">
       <label
